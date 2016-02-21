@@ -1,0 +1,3 @@
+uwsgi
+MySQL-python
+django-widget-tweaks

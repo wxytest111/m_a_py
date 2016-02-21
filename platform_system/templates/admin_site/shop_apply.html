@@ -1,0 +1,66 @@
+{% extends "admin_site/base.html" %}
+{% block content %}
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">商铺申请</div>
+    <table class="table table-bordered table-hover table-responsive">
+    <thead>
+        <tr>
+        <th>姓名</th>
+				<th>性别</th>
+        <th>电话</th>
+        <th>邮箱</th>
+        <th>职业</th>
+        <th>申请时间</th>
+		<th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in template_args.list_show %}
+        <tr>
+            <th>{{ item.name }}</th>
+            <th>{{ item.sex}}</th>
+            <th>{{ item.tel}}</th>
+            <th>{{ item.email}}</th>
+            <th>{{ item.company}}</th>
+            <th>{{ item.apply_time}}</th>
+						<th>
+                <button class="btn btn-primary" onclick=doaudit({{item.id}},1)>通过</button>
+                <button class="btn btn-warning" onclick=doaudit({{item.id}},2)>拒绝</button>
+            </th>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript">
+function doaudit(id, res){
+	if( !confirm("确认么?") )
+	{
+			return;
+	}
+	
+  $.ajax({
+    type:'GET',
+    url:'/admin_site/shop_verify',
+    dataType:'json',
+    data:{'id':id, 'check_res':res},
+    success:function(data){
+      if(data.retcode=="0"){
+        alert("审核完成");
+        window.location.reload(true);
+      }else{
+        alert(data.retmsg);
+      }
+    },
+    error:function(){
+      alert("系统异常，请稍后再试！")
+    }
+  })
+}
+</script>
+{% endblock %}

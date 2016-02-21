@@ -1,4 +1,5 @@
 #coding:utf8
+
 # This is an auto-generated Django model module.
 # You'll have to do the following manually to clean this up:
 #   * Rearrange models' order
@@ -16,13 +17,13 @@ from django.contrib.auth.models import User
 
 class Admins(models.Model):
     # 关联现有的用户对象
-    user = models.OneToOneField(User,related_name="user", primary_key=True)
+    user = models.OneToOneField(User,related_name="user",verbose_name='用户', primary_key=True)
 
     ptype_state = (
         (1, u"平台用户"),
         (2, u"商户"),
     )
-    ptype = models.IntegerField(choices=ptype_state, default=0)
+    ptype = models.IntegerField(choices=ptype_state,verbose_name='类型',default=0)
 
     create_time = models.DateTimeField(verbose_name='创建时间',db_index=True,auto_now_add=True)
     modify_time = models.DateTimeField(verbose_name='修改时间',blank=True,null=True,auto_now=True)
@@ -47,13 +48,27 @@ class ApplyShops(models.Model):
     creid = models.CharField(max_length=255, blank=True, null=True)
     company = models.CharField(max_length=255, blank=True, null=True)
     shop = models.ForeignKey('Shops', models.DO_NOTHING, blank=True, null=True)
-    state = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    
+    state_choice = (
+        (0, u"待审核"),
+        (1, u"审核通过"),
+        (2, u"已驳回"),
+    )
+
+    state = models.IntegerField(blank=True, null=True, choices=state_choice)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = False
         db_table = 'apply_shops'
+        
+    def show_sex(self):
+        if 1 == int(self.sex):
+            return u"男"
+        else:
+            return u"女"
+        
 
 class Birds(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -93,8 +108,8 @@ class Customers(models.Model):
     tel = models.CharField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     district = models.ForeignKey('Districts', models.DO_NOTHING, blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = False
@@ -104,8 +119,8 @@ class Customers(models.Model):
 class Districts(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     city = models.ForeignKey(Cities, models.DO_NOTHING, blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = False
@@ -120,20 +135,21 @@ class PayRecords(models.Model):
     pay_time = models.DateTimeField(blank=True, null=True)
     total_count = models.IntegerField(blank=True, null=True)
     left_count = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = False
         db_table = 'pay_records'
 
+
 class Products(models.Model):
     name = models.CharField(verbose_name='产品名称',max_length=255, blank=True, null=True)
     description = models.TextField(verbose_name='产品描述',blank=True, null=True)
-    duration = models.IntegerField(verbose_name='单次操作时间长度',blank=True, null=True)
+    duration = models.IntegerField(verbose_name='操作时长',blank=True, null=True)
     period = models.TextField(verbose_name='疗程周期',blank=True, null=True)
     effect = models.TextField(verbose_name='功效',blank=True, null=True)
-    applicable = models.TextField(verbose_name='适用哪些肤质',blank=True, null=True)
+    applicable = models.TextField(verbose_name='肤质',blank=True, null=True)
     kind = models.IntegerField(verbose_name='产品名称',blank=True, null=True)
 
     how_choice = (
@@ -145,12 +161,13 @@ class Products(models.Model):
     pic_path = models.CharField(verbose_name='图片路径',max_length=255, blank=True, null=True)
     show_price = models.IntegerField(verbose_name='原价，单位：分',blank=True, null=True)
     pay_price = models.IntegerField(verbose_name='支付价格，单位：分',blank=True, null=True)
+    
     state_choice = (
         (1, u"草稿"),
         (2, u"发布上线"),
         (3, u"下架"),
     )
-    state = models.IntegerField(verbose_name='状态',blank=True, null=True)
+    state = models.IntegerField(verbose_name='状态',choices=state_choice, blank=True, null=True)
     admin = models.ForeignKey(Admins, models.DO_NOTHING, blank=True, null=True)
     created_at = models.DateTimeField(verbose_name='创建时间',auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name='修改时间',auto_now=True)
@@ -158,6 +175,7 @@ class Products(models.Model):
     class Meta:
         managed = False
         db_table = 'products'
+        
 
 class ShopCustomers(models.Model):
     state = models.IntegerField(blank=True, null=True)
@@ -184,13 +202,19 @@ class Shops(models.Model):
     login_pass = models.CharField(max_length=255, blank=True, null=True)
     subshop_count = models.IntegerField(blank=True, null=True)
     level = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = False
         db_table = 'shops'
-
+        
+    def show_sex(self):
+        if 1 == int(self.sex):
+            return u"男"
+        else:
+            return u"女"
+    
 
 class Steps(models.Model):
     number = models.IntegerField(blank=True, null=True)
@@ -215,13 +239,23 @@ class Subscribes(models.Model):
     district = models.ForeignKey(Districts, models.DO_NOTHING, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     waitress = models.ForeignKey('Waitresses', models.DO_NOTHING, blank=True, null=True)
-    state = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    
+    state_choice = (
+         (1, u"预约中"),
+         (2, u"已审核"),
+         (3, u"服务人员已分配"),
+         (4, u"服务中"),
+         (5, u"服务完成"),
+         (3, u"已取消"),
+    )
+    state = models.IntegerField(choices=state_choice, blank=True, default=0, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = False
         db_table = 'subscribes'
+
 
 
 class Waitresses(models.Model):

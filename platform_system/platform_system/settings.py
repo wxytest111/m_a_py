@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'models',
     'sp_site',
     'admin_site',
+    'widget_tweaks',
+    #'debug_toolbar',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -51,6 +53,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'platform_system.urls'
@@ -58,7 +61,7 @@ ROOT_URLCONF = 'platform_system.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR + "/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,11 +83,11 @@ WSGI_APPLICATION = 'platform_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'm001',
-        'USER': 'user1',
-        'PASSWORD': 'meirong',
-        'HOST': 'rdsa61t921x6l42cp327.mysql.rds.aliyuncs.com',
-        'PORT': '3306',
+        'NAME': 'meirong',
+        'PASSWORD': '1j2n3m2',
+        'USER': 'meirong',
+        'HOST': '',
+        'PORT': '',
     }
 }
 
@@ -111,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-cn'
 
 TIME_ZONE = 'UTC'
 
@@ -126,3 +129,86 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR + '/static/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s][%(levelname)s][%(module)s][%(process)d][%(thread)d][%(funcName)s][%(lineno)s] %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 10 * 1024 * 1024,
+            'backupCount': 5,
+            'filename': BASE_DIR + '/logs/debug.log',
+            'formatter': 'simple',
+        },
+        'sp_site': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 10 * 1024 * 1024,
+            'backupCount': 5,
+            'filename': BASE_DIR + '/logs/sp_site.log',
+            'formatter': 'simple',
+        },
+        'admin_site': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 10 * 1024 * 1024,
+            'backupCount': 5,
+            'filename': BASE_DIR + '/logs/admin_site.log',
+            'formatter': 'simple',
+        },
+        'request': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 10 * 1024 * 1024,
+            'backupCount': 5,
+            'filename': BASE_DIR + '/logs/request.log',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'app': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'sp_site': {
+            'handlers': ['sp_site'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'admin_site': {
+            'handlers': ['admin_site'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['request'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    #'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    #'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
+]
+

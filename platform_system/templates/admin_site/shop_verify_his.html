@@ -1,0 +1,139 @@
+{% extends "admin_site/base.html" %}
+{% block content %}
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">商铺申请审核记录</div>
+    <table class="table table-bordered table-hover table-responsive">
+    <thead>
+        <tr style="background-color: darkgray;">
+        <th>姓名</th>
+				<th>性别</th>
+        <th>电话</th>
+        <th>邮箱</th>
+        <th>职业</th>
+        <th>申请时间</th>
+        <th>结果</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in template_args.list_show %}
+        {% ifequal item.state 1 %}
+	        <tr style="background-color: green">
+	            <th>{{ item.name }}</th>
+	            <th>{{ item.sex}}</th>
+	            <th>{{ item.tel}}</th>
+	            <th>{{ item.email}}</th>
+	            <th>{{ item.company}}</th>
+	            <th>{{ item.apply_time}}</th>
+							<th>已通过</th>
+	        </tr>
+	     	{% else %}
+	     		<tr style="background-color: red">
+	            <th>{{ item.name }}</th>
+	            <th>{{ item.sex}}</th>
+	            <th>{{ item.tel}}</th>
+	            <th>{{ item.email}}</th>
+	            <th>{{ item.company}}</th>
+	            <th>{{ item.apply_time}}</th>
+							<th>已驳回</th>
+	        </tr>
+	      {% endifequal %}
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript">
+$(function(){
+  $('#sel-all').click(function(){
+    if($("#sel-all").prop("checked")){
+      $("tbody :checkbox").prop("checked",true);
+    }else{
+      $("tbody :checkbox").prop("checked",false);
+    }
+  });
+  $('#batch-del').on('click',function(){
+    var del_list = "";
+    $("tbody :checkbox").each(function(){
+      if($(this).prop("checked"))
+        del_list += $(this).val() + "|"
+    })
+    if(del_list.length == 0){
+      alert("请选择需要删除的内容。")
+      return;
+    }
+    if (confirm("确定要删除吗？")==false){
+      return;
+    }
+    $.ajax({
+        url: '/backsys/emba_score/batch-del',
+        type: 'POST',
+        dataType:'json',
+        // Form数据
+        data: {"id_list" : del_list, "type":"emba"},
+        //Ajax事件
+        success: function(data){ 
+          if(data.retcode=="0")
+          {
+              alert("删除成功");
+              location.reload(true);
+          }
+          else
+          {
+              alert(data.retmsg);
+          }
+        },
+        error: function(){ 
+          alert("删除失败");
+        },
+    });  
+  })
+})
+
+function addModalData(id, obj){
+  var li_list = $(obj).parent().siblings();
+  var form = $("#detail_form");
+  form.find("input[name='id']").val(id);
+  form.find("input[name='code']").val($(obj).text());
+  form.find("input[name='name']").val($(li_list[1]).text());
+  form.find("input[name='classname']").val($(li_list[2]).text());
+  form.find("select[name='location']").find("option:contains('" + $(li_list[3]).text() +"')").attr("selected",true);
+  form.find("input[name='subject']").val($(li_list[4]).text());
+  form.find("input[name='score']").val($(li_list[5]).text());
+  form.find("input[name='score_display']").val($(li_list[6]).text());
+}
+
+function del_score(){
+  var id = $("#detail_form input[name='id']").val();
+
+  if(id.length == 0){
+    alert("请刷新重试。");
+    return;
+  }
+  if(!confirm("确定要删除吗？")){
+    return;
+  }
+
+  $.ajax({
+    type:'POST',
+    url:'/backsys/emba_score/del',
+    dataType:'json',
+    data:{'id':id},
+    success:function(data){
+      if(data.retcode=="0"){
+        alert("删除成功");
+        window.location.reload(true);
+      }else{
+        alert(data.retmsg);
+      }
+    },
+    error:function(){
+      alert("系统异常，请稍后再试！")
+    }
+  })
+}
+</script>
+{% endblock %}
