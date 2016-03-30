@@ -23,3 +23,6 @@ margin: 0 0 3px;
 padding: 4px 5px;
 border-radius: 4px;
 }
+.django-ckeditor-widget{
+	width: 100% !important;
+}

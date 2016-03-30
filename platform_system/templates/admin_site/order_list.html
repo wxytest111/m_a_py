@@ -1,42 +1,82 @@
 {% extends "admin_site/base.html" %}
 {% block content %}
 <div class="panel panel-default">
-  <!-- Default panel contents -->
-  <div class="panel-heading">商铺申请审核记录</div>
-    <table class="table table-bordered table-hover table-responsive">
-    <thead>
-        <tr style="background-color: darkgray;">
-        <th>店铺标题</th>
-        <th>店铺主人</th>
-        <th>联系方式</th>
-        <th>创建时间</th>
-        <th>分享链接</th>
-        <th>查看详情</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in template_args.list_show %}
-        <tr>
-            <th>{{ item.title }}</th>
-            <th>{{ item.name }}</th>
-            <th>{{ item.tel }}</th>
-            <th>{{ item.create_at }}</th>
-            <th><button class="btn btn-primary" data-toggle="modal" data-target="#share_link_modal" onclick=hintsharelink("{{item.uuid}}")>获取链接</button></th>
-            <th><button class="btn btn-primary" data-toggle="modal" data-target="#detail_modal" onclick=showdetail("{{item.id}}")>查看详情</button></th>
-        </tr>
-        {% endfor %}
-    </tbody>
-    </table>
+ 	<div class="panel-heading">订单下载</div>
+	<div class="panel-body">
+    <form name="query_form" id="query_form" class="form-inline" onSubmit="return chkform();">
+      <div class="form-group">
+        <label for="start_time">起始时间</label>
+        <input type="text" class="form-control" name="start_time">
+      </div>
+      <div class="form-group">
+        <label for="end_time">结束时间</label>
+        <input type="text" class="form-control" name="end_time">
+      </div>
+      <button class="btn btn-default" onclick ="submit_form('export')">导出订单</button>
+    </form>
+	</div>
+</div>
+<div class="panel panel-default">
+  	<!-- Default panel contents -->
+  	<div class="panel-heading">订单记录</div>
+		<div class="panel-body">
+	    <table class="table table-striped table-bordered" cellpadding="0" width="100%">
+	    <thead>
+	        <tr style="background-color: darkgray;">
+	        <th data-orderable="false">买家ID</th>
+	        <th data-orderable="false">买家姓名</th>
+	        <th data-orderable="false">买家电话</th>
+	        <th data-orderable="false">商品ID</th>
+	        <th data-orderable="false">商品名称</th>
+	        <th data-orderable="false">商品价格</th>
+	        <th data-orderable="false">支付金额</th>
+	        <th data-orderable="false">支付状态</th>
+	        <th>支付时间</th>
+	        <th data-orderable="false">可使用次数</th>
+	        <th data-orderable="false">剩余次数</th>
+	        <th>创建时间</th>
+	        <th data-orderable="false">操作</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	    </tbody>
+	    </table>
+    </div>
 </div>
 
 
-<div tabindex="-1" class="modal fade" id="share_link_modal" style="display: none;" data-width="768">
+<div tabindex="-1" class="modal fade" id="show_product_simple_info" style="display: none;" data-width="768">
 	<div class="modal-header">
 		<button class="close" aria-hidden="true" type="button" data-dismiss="modal">×</button>
-		<h4 class="modal-title">店铺分享链接</h4>
+		<h4 class="modal-title"></h4>
 	</div>
 	<div class="modal-body">
-		<p id="share"></p>
+   <div class="form-horizontal" id="product_info_form">
+    	<div class="form-group">
+          <label for="code" class="col-sm-2 control-label">商品名称</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="name" readonly>
+          </div>
+      </div>
+      <div class="form-group">
+          <label for="code" class="col-sm-2 control-label">商品价格</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="price" readonly>
+          </div>
+      </div>
+      <div class="form-group">
+          <label for="code" class="col-sm-2 control-label">类型</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="type" readonly>
+          </div>
+      </div>
+      <div class="form-group">
+          <label for="code" class="col-sm-2 control-label">可使用总次数</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="total_count" readonly>
+          </div>
+      </div>
+    </div>
 	</div>
 	<div class="modal-footer">
 	  <button class="btn btn-default" type="button" data-dismiss="modal">关闭</button>
@@ -44,71 +84,64 @@
 </div>
 
 
-<div tabindex="-1" class="modal fade" id="detail_modal" style="display:none;" data-width="760">
+<div tabindex="-1" class="modal fade" id="show_order_detail" style="display:none;" data-width="760">
  <div class="modal-header">
    <button class="close" aria-hidden="true" type="button" data-dismiss="modal">×</button>
-   <h4 class="modal-title">店铺详情</h4>
+   <h4 class="modal-title">订单详情</h4>
  </div>
  <div class="modal-body">
-   <div class="form-horizontal" id="detail_form">
+   <div class="form-horizontal" id="order_detail_form">
       <div class="form-group">
          <div class="col-sm-12">
             <input type="hidden" class="form-control" name="id">
          </div>
       </div>
       <div class="form-group">
-          <label for="code" class="col-sm-2 control-label">姓名</label>
+          <label for="code" class="col-sm-2 control-label">买家姓名</label>
           <div class="col-sm-10">
             <input type="text" class="form-control" name="name" readonly>
           </div>
       </div>
       <div class="form-group">
-          <label for="code" class="col-sm-2 control-label">店铺名称</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="title">
-          </div>
-      </div>
-      <div class="form-group">
           <label class="col-sm-2 control-label">联系方式</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" name="tel">
+            <input type="text" class="form-control" name="tel" readonly>
           </div>
       </div>
       <div class="form-group">
-          <label class="col-sm-2 control-label">邮件</label>
+          <label class="col-sm-2 control-label">商品名称</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" name="email">
+            <input type="text" class="form-control" name="p_name" readonly>
           </div>
       </div>
       <div class="form-group">
-          <label class="col-sm-2 control-label">身份证</label>
+          <label class="col-sm-2 control-label">商品价格(单位：元)</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" name="cre_id">
+            <input type="text" class="form-control" name="p_price" readonly>
           </div>
       </div>
       <div class="form-group">
-          <label class="col-sm-2 control-label">职业</label>
+          <label class="col-sm-2 control-label">已付款金额(单位：元)</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" name="company">
+            <input type="text" class="form-control" name="paynum">
           </div>
       </div>
       <div class="form-group">
-          <label class="col-sm-2 control-label">下级店铺数量</label>
+          <label class="col-sm-2 control-label">状态</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" name="subshop_count" readonly>
-          </div>
-      </div>
-      <div class="form-group">
-          <label class="col-sm-2 control-label">级别</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="level">
+            <select name="state" class="form-control">
+              <option value="0">尚未付款</option>
+              <option value="1">预付款</option>
+              <option value="2">全额付款</option>
+              <option value="3">已关闭</option>
+            </select>
           </div>
       </div>
     </div>
   </div>
     <div class="modal-footer">
       <button class="btn btn-default" type="button" data-dismiss="modal">关闭</button>
-      <button class="btn btn-primary" type="button" onclick="doedit()">修改</button>
+      <button class="btn btn-primary" type="button" onclick="edit_order()">修改</button>
     </div>
 </div>
 {% endblock %}
@@ -117,33 +150,104 @@
 {% block script %}
 <script type="text/javascript">
 $(function(){
+  $("input[name=start_time]").datepicker({
+    format: "yyyy-mm-dd",
+    weekStart: 1,
+    todayBtn: "linked",
+    language: "zh-CN",
+    autoclose: true
+  });
+  $("input[name=end_time]").datepicker({
+    format: "yyyy-mm-dd",
+    weekStart: 1,
+    todayBtn: "linked",
+    language: "zh-CN",
+    autoclose: true
+  });
+  $('table').DataTable({
+    "processing": true,
+    "serverSide": true,
+    "ajax": {
+            "url": "/admin_site/order_list",
+            "type": "POST"
+    },
+    "columns": [
+            { "data": "payuser_id", "visible":false },
+            { "data": "name" },
+            { "data": "tel" },
+            { "data": "pt_id", "visible":false },
+            { "data": "pt_name" },
+            { "data": "pt_price" },
+            { "data": "paynum" },
+            { "data": "paystate" },
+            { "data": "paytime" },
+            { "data": "total_count" },
+            { "data": "left_count" },
+            { "data": "create_at" },
+            { "data": "id" },
+    ],
+    "language": {
+            "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Chinese.json"
+    },
+    "order": [[ 11, "desc" ]],
+    "columnDefs": [ 
+      {
+        "targets": 4,
+        "data": "pt_name",
+        "render": function ( data, type, full, meta ) {
+          return '<td><a data-toggle="modal" data-target="#show_product_simple_info" onclick=show_product_info("'+full["pt_id"]+'")>'+data +'</a></td>';
+        }
+      },
+      {
+        "targets": 7,
+        "data": "paystate",
+        "render": function ( data, type, full, meta ) {
+          	if(data == "0")
+          	{
+          		return '<td>待付款</td>'
+          	}
+          	else if(data == "1")
+          	{
+          		return '<td>预付款</td>'
+          	}
+            else if(data == "2")
+          	{
+          		return '<td>已付全款</td>'
+          	}
+          	else
+          	{
+          		return '<td>已关闭</td>'
+          	}
+        }
+      },
+      {
+        "targets": -1,
+        "data": "id",
+        "render": function ( data, type, full, meta ) {
+          return '<td><a data-toggle="modal" data-target="#show_order_detail" onclick=show_order_detail(this,'+ data +')>编辑详情</a></td>';
+        }
+      }
+    ]
+  });
 })
 
-function hintsharelink(uuid)
-{
-		link = "http://meirong.yourutils.com/admin_site/shop_detail?uuid=" + uuid;
-		$("#share").text(link).css("color","blue")
-		return;
-}
-
-function showdetail(id){
+function show_product_info(id){
    $.ajax({
     type:'GET',
-    url:'/admin_site/shop_detail',
+    url:'/admin_site/prod_simple_detail',
     dataType:'json',
     data:{'id':id},
     success:function(data){
       if(data.retcode=="0"){
-				  var form = $("#detail_form");
-  				form.find("input[name='id']").val(id);
+				  var form = $("#product_info_form");
   				form.find("input[name='name']").val(data.name);
-  				form.find("input[name='title']").val(data.title);
-  				form.find("input[name='tel']").val(data.tel);
-  				form.find("input[name='email']").val(data.email);
-  				form.find("input[name='company']").val(data.company);
-  				form.find("input[name='cre_id']").val("none");
-  				form.find("input[name='subshop_count']").val(data.subshop_count);
-  				form.find("input[name='level']").val(data.level);
+  				form.find("input[name='price']").val(data.pay_price+'元');
+  				if(data.type == "1")
+  					form.find("input[name='type']").val('单次产品');
+  				else
+  					form.find("input[name='type']").val('多次产品');
+  					
+  				form.find("input[name='total_count']").val(data.total_count);
       }else{
         alert(data.retmsg);
       }
@@ -155,60 +259,64 @@ function showdetail(id){
 }
 
 
-function doedit(){
+function show_order_detail(obj, order_id){
+  var li_list = $(obj).parent().siblings();
+  var form = $("#order_detail_form");
+  form.find("input[name='id']").val(order_id);
+  form.find("input[name='name']").val($(li_list[0]).text());
+  form.find("input[name='tel']").val($(li_list[1]).text());
+  form.find("input[name='p_name']").val($(li_list[2]).text());
+  form.find("input[name='p_price']").val($(li_list[3]).text());
+  form.find("input[name='paynum']").val($(li_list[4]).text());
+  form.find("select[name='state']").find("option:contains('" + $(li_list[5]).text() +"')").attr("selected",true);
+}
+
+
+function edit_order(){
 	
-		var id = $("#detail_form input[name='id']").val();
-		var title = $("#detail_form input[name='title']").val();
-		var tel = $("#detail_form input[name='tel']").val();
-		var email = $("#detail_form input[name='email']").val();
-		var company = $("#detail_form input[name='company']").val();
-		var cre_id = $("#detail_form input[name='cre_id']").val();
-		var level = $("#detail_form input[name='level']").val();
+		var id = $("#order_detail_form input[name='id']").val();
+		var paynum = $("#order_detail_form input[name='paynum']").val();
+		var state = $("#order_detail_form select[name='state']").val();
 
-		
-	 if( title.length == 0 )
-	 {
-	 		alert("标题不能为空")
-	 		return;
-	 }
-	 
-	 if( tel.length != 11 )
-	 {
-			alert("手机格式错误")
-	 		return;
-	 }
-	 
-	 if( email.length == 0  )
-	 {
-			alert("必须输入邮箱")
-	 		return;
-	 }
-	 
-	 var iLevel = parseInt(level)
-	 if( iLevel < 0 || iLevel > 10 )
-	 {
-			alert("级别不能小于0或者大于10")
-	 		return;
-	 }
+		if( paynum.length == 0 )
+ 		{
+ 			alert("支付金额不能是空")
+ 			return;
+ 		}
 
-
-   $.ajax({
-    type:'POST',
-    url:'/admin_site/edit_shop',
-    dataType:'json',
-    data:{'csrfmiddlewaretoken':'{{csrf_token}}', 'id':id,'title':title,'tel':tel,'email':email,'company':company,'cre_id':cre_id,'level':level},
-    success:function(data){
-      if(data.retcode=="0"){
-				alert("更新成功");
-				window.location.reload(true);
-      }else{
-        alert(data.retmsg);
-      }
-    },
-    error:function(){
-      alert("系统异常，请稍后再试！")
-    }
-  })
+   	$.ajax({
+    	type:'POST',
+			url:'/admin_site/edit_order',
+			dataType:'json',
+			data:{'csrfmiddlewaretoken':'{{csrf_token}}', 'id':id,'paynum':paynum,'state':state},
+			success:function(data){
+  			if(data.retcode=="0"){
+					alert("更新成功");
+					window.location.reload(true);
+  			}else{
+    			alert(data.retmsg);
+  			}
+			},
+			error:function(){
+  			alert("系统异常，请稍后再试！")
+    	}
+  	})
 }
+
+function chkform(){
+  var start_time = $("#query_form input[name='start_time']").val();
+  var end_time = $("#query_form input[name='end_time']").val();
+  if(end_time.length == 0 || start_time.length == 0){
+    alert("请选择查询起始时间。");
+    return false;
+  }
+  return true;
+}
+
+function submit_form(type){
+    document.query_form.action = "/admin_site/download_order";
+    document.query_form.method = "GET";
+}
+
 </script>
 {% endblock %}

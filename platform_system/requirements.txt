@@ -1,3 +1,6 @@
 uwsgi
 MySQL-python
 django-widget-tweaks
+pillow
+xlsxwriter
+django-ckeditor

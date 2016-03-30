@@ -20,5 +20,5 @@ urlpatterns = [
     url(r'^backsys/', admin.site.urls),
     url(r'^admin_site/', include('admin_site.urls',namespace="admin_site")),
     url(r'^sp_site/', include('sp_site.urls',namespace="sp_site")),
-
+    url(r'^ckeditor/', include('ckeditor_uploader.urls')),
 ]

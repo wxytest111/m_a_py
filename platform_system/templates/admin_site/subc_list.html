@@ -1,0 +1,434 @@
+{% extends "admin_site/base.html" %}
+{% block content %}
+<div class="panel panel-default">
+ 	<div class="panel-heading">预约记录下载</div>
+	<div class="panel-body">
+    <form name="query_form" id="query_form" class="form-inline" onSubmit="return chkform();">
+      <div class="form-group">
+        <label for="start_time">起始时间</label>
+        <input class="form-control" name="start_time">
+      </div>
+      <div class="form-group">
+        <label for="end_time">结束时间</label>
+        <input class="form-control" name="end_time">
+      </div>
+      <div class="form-group">
+        <label for="end_time">状态</label>
+        <select class="form-control" name="state">
+        	<option value="1">服务已完成</option>
+        	<option value="2">全部</option>
+        </select>
+      </div>
+      <button class="btn btn-default" onclick ="submit_form('export')">导出记录</button>
+    </form>
+	</div>
+</div>
+<div class="panel panel-default">
+  	<!-- Default panel contents -->
+  	<div class="panel-heading">预约记录</div>
+		<div class="panel-body">
+	    <table id="major_table" class="table table-striped table-bordered" cellpadding="0" width="100%">
+	    <thead>
+	        <tr style="background-color: darkgray;">
+	        <th data-orderable="false">姓名</th>
+	        <th data-orderable="false">电话</th>
+	        <th data-orderable="false">性别</th>
+	        <th>开始时间</th>
+	        <th data-orderable="false">结束时间</th>
+	        <th data-orderable="false">服务人员</th>
+	        <th data-orderable="false">创建时间</th>
+	        <th data-orderable="false">状态</th>
+	        <th data-orderable="false"></th>
+	        <th data-orderable="false"></th>
+	        <th data-orderable="false"></th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	    </tbody>
+	    </table>
+    </div>
+</div>
+
+<div tabindex="-1" class="modal fade" id="customer_addr_modal" style="display: none;" data-width="768">
+	<div class="modal-header">
+		<button class="close" aria-hidden="true" type="button" data-dismiss="modal">×</button>
+		<h4 class="modal-title">顾客地址</h4>
+	</div>
+	<div class="modal-body">
+		<p id="customer_addr"></p>
+	</div>
+	<div class="modal-footer">
+	  <button class="btn btn-default" type="button" data-dismiss="modal">关闭</button>
+	</div>
+</div>
+
+
+<div tabindex="-1" class="modal fade" id="show_detail" style="display:none;" data-width="760">
+ <div class="modal-header">
+   <button class="close" aria-hidden="true" type="button" data-dismiss="modal">×</button>
+   <h4 class="modal-title">预约详情</h4>
+ </div>
+ <div class="modal-body">
+   <div class="form-horizontal" id="subc_detail_form">
+      <div class="form-group">
+         <div class="col-sm-12">
+            <input type="hidden" class="form-control" name="id">
+         </div>
+      </div>
+      <div class="form-group">
+          <label class="col-sm-2 control-label">顾客姓名</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="name" readonly>
+          </div>
+      </div>
+      <div class="form-group">
+          <label class="col-sm-2 control-label">联系方式</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="tel">
+          </div>
+      </div>
+      <div class="form-group">
+          <label class="col-sm-2 control-label">开始时间</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="start_time">
+          </div>
+      </div>
+      <div class="form-group">
+          <label class="col-sm-2 control-label">结束时间</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="end_time">
+          </div>
+      </div>
+      <div class="form-group">
+          <label class="col-sm-2 control-label">地址</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="addr">
+          </div>
+      </div>
+      <div class="form-group">
+          <label class="col-sm-2 control-label">服务员</label>
+          <div class="col-sm-10">
+            <select name="waitress" id="waitress_list" class="form-control">
+            </select>
+          </div>
+      </div>
+      <div class="form-group">
+          <label class="col-sm-2 control-label">状态</label>
+          <div class="col-sm-10">
+            <select name="state" class="form-control">
+              <option value="1">预约中</option>
+              <option value="2">已审核</option>
+              <option value="3">服务员已分配</option>
+              <option value="4">服务中</option>
+              <option value="5">服务结束</option>
+              <option value="6">已取消</option>
+            </select>
+          </div>
+      </div>
+    </div>
+  </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" type="button" data-dismiss="modal">关闭</button>
+      <button class="btn btn-primary" type="button" onclick="edit_subc()">修改</button>
+    </div>
+</div>
+
+
+<div tabindex="-1" class="modal fade" id="show_prod_list" style="display:none;" data-width="760">
+  <div class="modal-header">
+   	<button class="close" aria-hidden="true" type="button" data-dismiss="modal">×</button>
+   	<h4 class="modal-title">预约商品列表</h4>
+  </div>
+  <div class="modal-body">
+   	<table class="table table-striped table-bordered" cellpadding="0" width="100%">
+	    <thead>
+	        <tr style="background-color: darkgray;">
+	        <th>名称</th>
+	        <th>类型</th>
+	        <th>总次数</th>
+	        <th>剩余次数</th>
+	        </tr>
+	    </thead>
+	    <tbody id="list_body">
+	    </tbody>
+	</table>
+  </div>
+  <div class="modal-footer">
+  	<button class="btn btn-default" type="button" data-dismiss="modal">关闭</button>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript">
+$(function(){
+
+  $("input[name=start_time]").datepicker({
+    format: "yyyy-mm-dd",
+    weekStart: 1,
+    todayBtn: "linked",
+    language: "zh-CN",
+    autoclose: true
+  });
+  
+  $("input[name=end_time]").datepicker({
+    format: "yyyy-mm-dd",
+    weekStart: 1,
+    todayBtn: "linked",
+    language: "zh-CN",
+    autoclose: true
+  });
+	
+	
+  $("#major_table").DataTable({
+    "processing": true,
+    "serverSide": true,
+    "ajax": {
+            "url": "/admin_site/subc_list",
+            "type": "POST"
+    },
+    "columns": [
+            { "data": "name" },
+            { "data": "tel" },
+            { "data": "sex" },
+            { "data": "start_time" },
+            { "data": "end_time" },
+            { "data": "waitress"},
+            { "data": "create_at" },
+            { "data": "state" },
+            { "data": "addr" },
+            { "data": "id"},
+            { "data": "id"},
+    ],
+    "language": {
+            "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Chinese.json"
+    },
+    "order": [[ 3, "desc" ]],
+    "columnDefs": [ 
+      {
+        "targets": 2,
+        "data": "sex",
+        "render": function ( data, type, full, meta ) {
+        	if(data == "1")
+          		return '<td>男</td>';
+          	else
+          		return '<td>女</td>';
+        }
+      },
+      {
+        "targets": 7,
+        "data": "state",
+        "render": function ( data, type, full, meta ) {
+          	if(data == "1")
+          	{
+          		return '<td>预约中</td>'
+          	}
+          	else if(data == "2")
+          	{
+          		return '<td>已审核</td>'
+          	}
+            else if(data == "3")
+          	{
+          		return '<td>已分配</td>'
+          	}
+            else if(data == "4")
+          	{
+          		return '<td>服务中</td>'
+          	}
+            else if(data == "5")
+          	{
+          		return '<td>服务完成</td>'
+          	}
+          	else
+          	{
+          		return '<td>已取消</td>'
+          	}
+        }
+      },
+      {
+        "targets": 8,
+        "data": "addr",
+        "render": function ( data, type, full, meta ) {
+          	return '<td><a data-toggle="modal" data-target="#customer_addr_modal" onclick=showaddr("'+data+'")>查看地址</a></td>';
+        }
+      },
+      {
+        "targets": -2,
+        "data": null,
+        "render": function ( data, type, full, meta ) {
+          	return '<td><a data-toggle="modal" data-target="#show_detail" onclick=show_major_detail(this,"'+data+'","'+full["addr"]+'")>查看详情</a></td>';
+        }
+      },
+      {
+        "targets": -1,
+        "data": null,
+        "render": function ( data, type, full, meta ) {
+          	return '<td><a data-toggle="modal" data-target="#show_prod_list" onclick=show_sub_list("' + data + '")>查看商品</td>';
+        }
+      },
+    ]
+  });
+})
+
+function showaddr(addr){
+	var my_addr = ""+addr
+	$("#customer_addr").text(my_addr).css("color","blue")
+}
+
+
+function show_sub_list(id)
+{
+	$(".prod_info").remove();
+	
+	$.ajax({
+		type:'GET',
+		url:'/admin_site/subc_prod_list',
+		dataType:'json',
+		data:{"id":id},
+		success:function(data){
+			if(data.retcode=="0"){
+				var prod_list = data.prod_list
+				for(var i=0;i<prod_list.length;i++)
+				{
+					name = prod_list[i]["p_name"];
+					type = prod_list[i]["type"];
+					total_num = prod_list[i]["total_num"];
+					left_num = prod_list[i]["left_num"];
+					var append_html = "";
+					append_html = "<tr class='prod_info'>"
+					append_html += "<td>"+name+"</td>";
+					if( type == "1" )
+						append_html += "<td>可多次使用</td>";
+					else
+						append_html += "<td>单次使用</td>";
+					append_html += "<td>"+total_num+"</td>";
+					append_html += "<td>"+left_num+"</td>";
+					append_html += "</tr>";
+					$("#list_body").append(append_html);
+				}
+			}
+			else
+			{
+				alert(data.retmsg);
+			}
+		},
+		error:function(){
+			alert("系统异常，请稍后再试！")
+		}
+	})
+	
+	
+}
+
+function show_major_detail(obj, id, addr){
+  	var li_list = $(obj).parent().siblings();
+  	var form = $("#subc_detail_form");
+  	form.find("input[name='id']").val(id);
+  	form.find("input[name='addr']").val(addr);
+  	form.find("input[name='name']").val($(li_list[0]).text());
+  	form.find("input[name='tel']").val($(li_list[1]).text());
+  	form.find("input[name='start_time']").val($(li_list[3]).text());
+  	form.find("input[name='end_time']").val($(li_list[4]).text());
+  	form.find("select[name='state']").find("option:contains('" + $(li_list[7]).text() +"')").attr("selected",true);
+  	var cur_waitress_name = $(li_list[5]).text();
+  
+	$.ajax({
+	type:'GET',
+		url:'/admin_site/waitress_list',
+		dataType:'json',
+		data:null,
+		success:function(data){
+			if(data.retcode=="0"){
+				var waitress_list = data.waitress_list
+				for(var i=0;i<waitress_list.length;i++)
+				{
+					id = waitress_list[i]["id"];
+					name = waitress_list[i]["name"];
+					var append_html = "";
+					if( name == cur_waitress_name )
+					{
+						append_html = "<option value=" + id + " selected>" + name + "</option>";
+						$("#waitress_list").append(append_html);
+					}
+					else
+					{
+						append_html = "<option value=" + id + ">" + name + "</option>";
+						$("#waitress_list").append(append_html);
+					}
+				}
+			}
+			else
+			{
+				alert(data.retmsg);
+			}
+		},
+		error:function(){
+			alert("系统异常，请稍后再试！")
+		}
+	})
+}
+
+
+function edit_subc(){
+	
+		var id = $("#subc_detail_form input[name='id']").val();
+		var tel = $("#subc_detail_form input[name='tel']").val();
+		var addr = $("#subc_detail_form input[name='addr']").val();
+		var start_time = $("#subc_detail_form input[name='start_time']").val();
+		var end_time = $("#subc_detail_form input[name='end_time']").val();
+		var waitress_id = $("#subc_detail_form select[name='waitress']").val();
+		var state = $("#subc_detail_form select[name='state']").val();
+
+		if( addr.length == 0 )
+ 		{
+ 			alert("地址不能是空")
+ 			return;
+ 		}
+ 		
+ 		if( tel.length == 0 )
+ 		{
+ 			alert("联系方式不能是空")
+ 			return;
+ 		}
+ 		
+   		$.ajax({
+    		type:'POST',
+			url:'/admin_site/edit_subc',
+			dataType:'json',
+			data:{'csrfmiddlewaretoken':'{{csrf_token}}', 
+				'id':id,'tel':tel,'addr':addr,
+				'start_time':start_time,'end_time':end_time,
+				'waitress':waitress_id, 'state':state},
+			success:function(data){
+  			if(data.retcode=="0"){
+					alert("更新成功");
+					window.location.reload(true);
+  			}else{
+    			alert(data.retmsg);
+  			}
+			},
+			error:function(){
+  			alert("系统异常，请稍后再试！")
+    	}
+  	})
+}
+
+function chkform(){
+  var start_time = $("#query_form input[name='start_time']").val();
+  var end_time = $("#query_form input[name='end_time']").val();
+  if(end_time.length == 0 || start_time.length == 0){
+    alert("请选择查询起始时间。");
+    return false;
+  }
+  return true;
+}
+
+function submit_form(type){
+    document.query_form.action = "/admin_site/download_subc_list";
+    document.query_form.method = "GET";
+}
+
+</script>
+{% endblock %}

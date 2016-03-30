@@ -1,0 +1,45 @@
+{% extends "admin_site/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="col-md-12">
+  <div class="row">
+    <form method="POST">
+      <div >
+          <div class="col-xs-6 form-group" style="padding-left: 0">
+            {{ template_args.form.account.label_tag }}
+            {% render_field template_args.form.account placeholder=template_args.form.account.label class+="form-control" %}
+            {{ template_args.form.account.errors }}
+          </div>
+          <div class="col-xs-6 form-group" style="padding-right : 0">
+            {{ template_args.form.role.label_tag }}
+            {% render_field template_args.form.role placeholder=template_args.form.role.label class+="form-control" %}
+            {{ template_args.form.role.errors }}
+          </div>
+      </div>
+
+      <div class="form-group">
+        {{ template_args.form.name.label_tag }}
+        {% render_field template_args.form.name placeholder=template_args.form.name.label class+="form-control" %}
+        {{ template_args.form.name.errors }}
+      </div>
+      <div class="form-group">
+        {{ template_args.form.password.label_tag }}
+        {% render_field template_args.form.password placeholder=template_args.form.password.label class+="form-control" %}
+        {{ template_args.form.password.errors }}
+      </div>
+      <div class="form-group">
+        {{ template_args.form.re_password.label_tag }}
+        {% render_field template_args.form.re_password placeholder=template_args.form.re_password.label class+="form-control" %}
+        {{ template_args.form.re_password.errors }}
+      </div>
+
+
+      {% csrf_token %}
+      <button type="submit" class="btn btn-block btn-info">提交</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

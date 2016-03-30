@@ -44,10 +44,15 @@ def login(request):
         if login_form.is_valid():
             cd = login_form.cleaned_data
             request_user = auth.authenticate(username=cd["username"], password = cd["password"])
-            auth.login(request, request_user)
             user = Admins.objects.get(user = request_user)
-            request.session["ptype"] = user.ptype
-            return HttpResponseRedirect(reverse("admin_site:index"))
+            if user.state == 1:
+                login_form.add_error("username",u'该用户不可登陆系统')
+            else:
+                auth.login(request, request_user)
+                request.session["ptype"] = user.ptype
+                return HttpResponseRedirect(reverse("admin_site:index"))
+
+            template_args["login_form"] = login_form
         else:
             template_args["login_form"] = login_form
     else:
@@ -74,7 +79,19 @@ def index(request):
 @check_login
 def change_login_pwd(request):
     template_args = {}
-
-    return render_to_response('admin_site/base.html', 
+    if request.method  == "POST":
+        form = ChangePWDForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if request.user.check_password(cd["old_password"]):
+                request.user.set_password(cd["password"])
+                request.user.save()
+                template_args["state"] = "0"
+            else:
+                form.add_error("old_password",u'密码错误')
+        template_args["form"] = form
+    else:
+        template_args["form"] = ChangePWDForm()
+    return render_to_response('admin_site/change_pwd.html', 
         {'template_args': template_args}, context_instance=RequestContext(request)
         )

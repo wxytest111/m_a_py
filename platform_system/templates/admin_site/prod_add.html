@@ -1,0 +1,87 @@
+{% extends "admin_site/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+  <form method="POST" enctype="multipart/form-data">
+    <div class="row">
+      <div class="col-md-6 form-group">
+        {{ template_args.form.name.label_tag }}
+        {% render_field template_args.form.name placeholder=template_args.form.name.label class+="form-control" %}
+        {{ template_args.form.name.errors }}
+      </div>
+      <div class="col-md-6 form-group">
+        {{ template_args.form.state.label_tag }}
+        {% render_field template_args.form.state placeholder=template_args.form.state.label class+="form-control" %}
+        {{ template_args.form.state.errors }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 form-group">
+        {{ template_args.form.show_price.label_tag }}
+        {% render_field template_args.form.show_price placeholder=template_args.form.show_price.label class+="form-control" %}
+        {{ template_args.form.show_price.errors }}
+      </div>
+      <div class="col-md-6 form-group">
+        {{ template_args.form.pay_price.label_tag }}
+        {% render_field template_args.form.pay_price placeholder=template_args.form.pay_price.label class+="form-control" %}
+        {{ template_args.form.pay_price.errors }}
+      </div>
+    </div>
+    <div class="form-group">
+      {{ template_args.form.pic_path.label_tag }}
+      {% render_field template_args.form.pic_path placeholder=template_args.form.pic_path.label class+="form-control" %}
+      {{ template_args.form.pic_path.errors }}
+    </div>
+    <div class="form-group">
+      {{ template_args.form.description.label_tag }}
+      {% render_field template_args.form.description placeholder=template_args.form.description.label class+="form-control w100" %}
+      {{ template_args.form.description.errors }}
+    </div>
+    <div class="form-group">
+      {{ template_args.form.period.label_tag }}
+      {% render_field template_args.form.period placeholder=template_args.form.period.label class+="form-control" %}
+      {{ template_args.form.period.errors }}
+    </div>
+    <div class="form-group">
+      {{ template_args.form.duration.label_tag }}
+      {% render_field template_args.form.duration placeholder=template_args.form.duration.label class+="form-control" %}
+      {{ template_args.form.duration.errors }}
+    </div>
+    <div class="form-group">
+      {{ template_args.form.effect.label_tag }}
+      {% render_field template_args.form.effect placeholder=template_args.form.effect.label class+="form-control" %}
+      {{ template_args.form.effect.errors }}
+    </div>
+    <div class="form-group">
+      {{ template_args.form.applicable.label_tag }}
+      {% render_field template_args.form.applicable placeholder=template_args.form.applicable.label class+="form-control" %}
+      {{ template_args.form.applicable.errors }}
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 form-group">
+          {{ template_args.form.kind.label_tag }}
+          {% render_field template_args.form.kind placeholder=template_args.form.kind.label class+="form-control" %}
+          {{ template_args.form.kind.errors }}
+        </div>
+        <div class="col-md-4 form-group">
+          {{ template_args.form.howuse.label_tag }}
+          {% render_field template_args.form.howuse placeholder=template_args.form.howuse.label class+="form-control" %}
+          {{ template_args.form.howuse.errors }}
+        </div>
+        <div class="col-md-4 form-group">
+          {{ template_args.form.total_count.label_tag }}
+          {% render_field template_args.form.total_count placeholder=template_args.form.total_count.label class+="form-control" %}
+          {{ template_args.form.total_count.errors }}
+        </div>
+    </div>
+    {% csrf_token %}
+    {% ifequal request.GET.action detail %}
+      <button type="submit" class="btn btn-block btn-info">提交</button>
+    {% endifequal %}
+  </form>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="/static/ckeditor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="/static/ckeditor/ckeditor-init.js"></script>
+{% endblock %}

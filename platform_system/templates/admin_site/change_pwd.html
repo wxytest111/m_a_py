@@ -1,0 +1,56 @@
+{% extends "admin_site/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div id="login-form">
+  <form id="pwd-form" class="form-horizontal" method="post" onsubmit="return checkpwd();">
+    {%if not template_args.hidden_old%}
+    <div class="form-group">
+      <div class="col-sm-12">
+        {% render_field template_args.form.old_password placeholder=template_args.form.old_password.label class+="form-control" %}
+        {{ template_args.form.old_password.errors }}
+      </div>
+    </div>
+    {% endif %}
+    <div class="form-group">
+      <div class="col-sm-12">
+        {% render_field template_args.form.password placeholder=template_args.form.password.label class+="form-control" %}
+        {{ template_args.form.password.errors }}
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-12">
+        {% render_field template_args.form.re_password placeholder=template_args.form.re_password.label class+="form-control" %}
+        {{ template_args.form.re_password.errors }}
+      </div>
+    </div>
+    {% csrf_token %}
+    <div class="errmsg">
+    {% ifequal template_args.state "0" %}
+      <p style="color: green">修改成功</p>
+    {% endifequal %}
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-8">
+        <button type="submit" class="btn btn-danger btn-block">修&nbsp;&nbsp;改</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+function checkpwd(){
+  var new_pwd = $("#pwd-form input[name='password']").val();
+  var repeat_pwd = $("#pwd-form input[name='re_password']").val();
+  if(new_pwd.length < 6 || new_pwd.length > 16){
+    alert("新密码长度错误，请输入6-16位密码。");
+    return false;
+  }
+  if(new_pwd != repeat_pwd){
+    alert("新密码两次输入不一致。");
+    return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}
